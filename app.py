@@ -22,8 +22,6 @@ os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_ENDPOINT"]="https://api.smith.langchain.com"
 os.environ["LANGCHAIN_PROJECT"]="Travel Assistant"
 
-utils.tracing_is_enabled()
-
 # Setup recognizer and APIs
 recognizer = sr.Recognizer()
 weather_api = OpenWeatherMapAPIWrapper()  # API key required
