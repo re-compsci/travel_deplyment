@@ -171,8 +171,6 @@ if on:
             listening_placeholder.empty()          
             result = conversational_agent.run(query)
             agent = result
-        else:
-            listening_placeholder.warning("⚠️ No input detected. Try again.")
 else:
     query = st.chat_input("Ask Anything ✍️ ")
     if query:
