@@ -74,7 +74,6 @@ def listen_to_user(timeout=3, phrase_time_limit=5):
     """Convert speech to text with error handling"""
     try:
         with sr.Microphone() as source:
-            listening_placeholder.write("🎤 Listening...")
             print("\n🎤 Listening... (Speak now)")
             audio = recognizer.listen(source, timeout=timeout)
         return recognizer.recognize_google(audio)
@@ -162,6 +161,7 @@ agent = ""
 on = st.toggle("🎙️ Use Voice Input")
 if on:
     if st.button("Start Recording"):
+        listening_placeholder = st.write("🎤 Listening...") 
         query = listen_to_user()  # make sure this function returns a valid string
         if query:
             listening_placeholder.success("✅ Voice input received!") 
