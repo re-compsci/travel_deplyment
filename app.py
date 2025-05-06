@@ -68,20 +68,23 @@ def ddg_search(query):
  
     return retriever_tool(split_docs, query)
 
-
+listening_placeholder = st.empty() 
 # Define the listen_to_user function
 def listen_to_user(timeout=3, phrase_time_limit=5):
     """Convert speech to text with error handling"""
     try:
         with sr.Microphone() as source:
             print("\n🎤 Listening... (Speak now)")
+            listening_placeholder.write("🎤 Listening...")
             audio = recognizer.listen(source, timeout=timeout)
         return recognizer.recognize_google(audio)
     except sr.WaitTimeoutError:
         print("⌛ No speech detected, please try again!")
+        listening_placeholder.warning("⚠️ No input detected. Try again.")
         return ""
     except Exception as e:
         print(f"🔇 : {str(e)}. Try speaking again.")
+        listening_placeholder.warning("⚠️ No input detected. Try again.")
         return ""
 
 # Define the prompt for the agent
@@ -159,17 +162,14 @@ agent = ""
 
 # Toggle for Audio or Text
 on = st.toggle("🎙️ Use Voice Input")
-listening_placeholder = st.empty() 
 if on:
     if st.button("Start Recording"):
-        listening_placeholder.write("🎤 Listening...")
         query = listen_to_user()  # make sure this function returns a valid string
         if query:
             listening_placeholder.success("✅ Voice input received!") 
-            listening_placeholder.empty()
             input_user = query
+            listening_placeholder.empty()          
             result = conversational_agent.run(query)
-            listening_placeholder.empty()
             agent = result
         else:
             listening_placeholder.warning("⚠️ No input detected. Try again.")
