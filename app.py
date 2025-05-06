@@ -74,8 +74,8 @@ def listen_to_user(timeout=3, phrase_time_limit=5):
     """Convert speech to text with error handling"""
     try:
         with sr.Microphone() as source:
-            print("\n🎤 Listening... (Speak now)")
             listening_placeholder.write("🎤 Listening...")
+            print("\n🎤 Listening... (Speak now)")
             audio = recognizer.listen(source, timeout=timeout)
         return recognizer.recognize_google(audio)
     except sr.WaitTimeoutError:
