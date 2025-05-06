@@ -24,7 +24,7 @@ os.environ["LANGCHAIN_PROJECT"]="Travel Assistant"
 
 # Setup recognizer and APIs
 recognizer = sr.Recognizer()
-weather_api = OpenWeatherMapAPIWrapper()  # API key required
+weather_api = OpenWeatherMapAPIWrapper(openweathermap_api_key=os.getenv("OPENWEATHERMAP_API_KEY"))  # API key required
 wiki_api = WikipediaAPIWrapper()
 duck_api = DuckDuckGoSearchAPIWrapper()
 embed = OpenAIEmbeddings(model='text-embedding-ada-002') 
