@@ -11,3 +11,4 @@ langchain-community
 pyowm
 weaviate-client
 wikipedia
+duckduckgo-search
