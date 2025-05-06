@@ -10,3 +10,4 @@ langchain-openai
 langchain-community
 pyowm
 weaviate-client
+wikipedia
