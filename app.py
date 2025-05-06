@@ -80,11 +80,9 @@ def listen_to_user(timeout=3, phrase_time_limit=5):
         return recognizer.recognize_google(audio)
     except sr.WaitTimeoutError:
         print("⌛ No speech detected, please try again!")
-        listening_placeholder.warning("⚠️ No input detected. Try again.")
         return ""
     except Exception as e:
         print(f"🔇 : {str(e)}. Try speaking again.")
-        listening_placeholder.warning("⚠️ No input detected. Try again.")
         return ""
 
 # Define the prompt for the agent
