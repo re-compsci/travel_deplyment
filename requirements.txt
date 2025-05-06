@@ -8,3 +8,4 @@ faiss-cpu
 tiktoken
 langchain-openai
 langchain-community
+pyowm
