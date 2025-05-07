@@ -88,53 +88,18 @@ def listen_to_user(timeout=3, phrase_time_limit=5):
 tour_guide_prompt = PromptTemplate(
     input_variables=["query"],
     template="""
-You are **SmartTourGuide 🌍**, a friendly, expert AI travel assistant.
+    You are a SmartTourGuideAgent. Your task is to help users with their travel-related questions.
+    If the user asks about a city or country, provide them with relevant details about it.
+    If the user asks for a trip plan, create a basic itinerary for them.
 
-🎯 Your job is to help users explore and plan travel-related experiences only. You specialize in:
+    Answer questions with relevant emojis to make the answers more engaging and fun. For example:
+    - For cities, mention landmarks, weather, or activities with emojis.
+    - For countries, mention famous attractions or cultural highlights with emojis.
+    - For trip plans, create a fun schedule with emojis representing the activities.
 
-- City or country descriptions (history, culture, highlights)
-- Famous tourist attractions and experiences
-- Local food, traditions, and practical travel tips
-- Travel weather info (via the weather tool)
-- **Trip plans and itineraries** with detailed day-by-day recommendations
-
-🛑 You **must not answer** questions outside of travel (e.g., programming, finance, general trivia). 
-Instead, politely say:
-> "I'm here to help with travel and tourism only 🌍✈️ — feel free to ask about any destination or trip plan!"
-
-✅ Use friendly, clear language and sprinkle in **relevant emojis** (🕌, 🌞, 🍽️) — but don't overdo it.
-
----
-
-🧳 **When creating a trip plan**, respond with:
-- A full **itinerary format**: "Day 1", "Day 2", etc.
-- Recommendations for landmarks, restaurants, shopping, cultural activities
-- Weather or packing tips if applicable
-
----
-
-🤔 **If the user’s request is unclear**, do not guess.
-Instead:
-- Ask for clarification politely
-- Suggest possible meanings or related questions
-
-Example:
-> "Could you clarify your destination or what type of trip you're looking for? Maybe you meant a beach city or a cultural tour?"
-
----
-
-🔧 Use only these tools:
-- `TravelInfoRetriever` → for city/country info
-- `WebSearch` → for tourism-specific web info if Wikipedia doesn’t help
-- `Weather` → for location-specific travel weather
-
----
-
-User query:
-{query}
-
-Your full, friendly, travel-focused response:
-"""
+    Query: {query}
+    Answer:
+    """
 )
 
 
@@ -143,38 +108,40 @@ Your full, friendly, travel-focused response:
 # Define the tools (API wrappers)
 tools = [
     Tool(
-        name="TravelInfoRetriever",
-        func=wiki_search,
-        description=(
-            "Use this tool when the user asks for a trip plan or itinerary. "
-            "Generate day-by-day plans for trips to cities or countries, including places to visit, food, cultural activities, and travel tips."
-            "ONLY use this to retrieve travel-related information about a city or country. "
-            "Mention landmarks, cultural highlights, or famous attractions — NO non-travel topics."
-        ),
+    name="TravelInfoRetriever",
+    func=wiki_search,
+    description=(
+    "You are a SmartTourGuideAgent."
+    "If the user asks about a city or country, provide them with details about it."
+    "If the user asks for a trip plan, create a basic itinerary for them."
+    "- For cities, mention landmarks, weather, or activities with emojis."
+    "- For countries, mention famous attractions or cultural highlights with emojis."
+    "- For trip plans, create a fun schedule with emojis representing the activities."
+    )
     ),
-    Tool(
-        name="WebSearch",
-        func=ddg_search,
+
+Tool(
+    name="Search",
+    func=ddg_search,
+    description=(
+        "Use this tool to search the web for up-to-date information, news, events, travel rules, or details not covered by other tools. "
+        "Best for questions like: 'Is the Venice Carnival this year?' or 'Entry rules for Japan 2025.'"
+    )
+),
+
+  Tool(
+        name='Weather',
+        func= weather_api.run,
         description=(
-            "ONLY use this for travel-related queries if Wikipedia doesn't help. "
-            "Use this tool when the user asks for a trip plan or itinerary. "
-            "Generate day-by-day plans for trips to cities or countries, including places to visit, food, cultural activities, and travel tips."
-            "Useful for finding articles or facts about destinations, activities, or events. "
-            "DO NOT use this for programming, finance, or other non-travel topics."
-        ),
-    ),
-    Tool(
-        name="Weather",
-        func=weather_api.run,
-        description=(
-            "Get current weather or forecast for travel destinations. "
-            "Only use this to help with trip planning — not for general science or weather analysis."
-        ),
-    ),
+        "Use this tool to find **current or forecasted weather information** about a country, city, or travel destination. "
+        "Ideal for questions like: 'What's the weather in Rome?', 'Is it rainy in Tokyo?', or 'How cold is it in Iceland in December?'. "
+        "Only use this tool when the user is asking specifically about **weather** conditions. "
+        "Do not use it for general travel info or sightseeing.")
+  )
 ]
 
 # Initialize agent with memory
-memory = ConversationBufferMemory(memory_key="chat_history")
+memory = ConversationBufferMemory()
 
 conversational_agent = initialize_agent(
     agent="conversational-react-description",
