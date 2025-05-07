@@ -160,9 +160,9 @@ input_user = ""
 agent = ""
 
 # Toggle for Audio or Text
-on = st.toggle("🎙️ Use Voice Input")
+on = st.button("🎙️ Use Voice Input")
 if on:
-    if st.button("Start Recording"):
+    if st.toggle("Start Recording"):
       
         query = listen_to_user()  # make sure this function returns a valid string
         st.write("🎤 Listening...") 
