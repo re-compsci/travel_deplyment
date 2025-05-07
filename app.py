@@ -141,7 +141,7 @@ Tool(
 ]
 
 # Initialize agent with memory
-memory = ConversationBufferMemory()
+memory = ConversationBufferMemory(memory_key="chat_history")
 
 conversational_agent = initialize_agent(
     agent="conversational-react-description",
