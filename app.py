@@ -165,7 +165,7 @@ if on:
     if st.button("Start Recording"):
       
         query = listen_to_user()  # make sure this function returns a valid string
-          st.write("🎤 Listening...") 
+        st.write("🎤 Listening...") 
         if query:
             st.success("✅ Voice input received!") 
             input_user = query
