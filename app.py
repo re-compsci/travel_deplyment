@@ -112,6 +112,8 @@ tools = [
         name="TravelInfoRetriever",
         func=wiki_search,
         description=(
+            "Use this tool when the user asks for a trip plan or itinerary. "
+            "Generate day-by-day plans for trips to cities or countries, including places to visit, food, cultural activities, and travel tips."
             "ONLY use this to retrieve travel-related information about a city or country. "
             "Mention landmarks, cultural highlights, or famous attractions — NO non-travel topics."
         ),
@@ -121,6 +123,8 @@ tools = [
         func=ddg_search,
         description=(
             "ONLY use this for travel-related queries if Wikipedia doesn't help. "
+            "Use this tool when the user asks for a trip plan or itinerary. "
+            "Generate day-by-day plans for trips to cities or countries, including places to visit, food, cultural activities, and travel tips."
             "Useful for finding articles or facts about destinations, activities, or events. "
             "DO NOT use this for programming, finance, or other non-travel topics."
         ),
