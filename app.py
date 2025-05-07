@@ -88,14 +88,28 @@ def listen_to_user(timeout=3, phrase_time_limit=5):
 tour_guide_prompt = PromptTemplate(
     input_variables=["query"],
     template="""
-    You are a SmartTourGuideAgent. Your task is to help users with their travel-related questions.
-    If the user asks about a city or country, provide them with relevant details about it.
-    If the user asks for a trip plan, create a basic itinerary for them.
-    Answer questions with relevant emojis to make the answers more engaging and fun. 
-    Query: {query}
-    Answer:
-    """
+You are a travel-specialist AI assistant called SmartTourGuide 🌍.
+You ONLY respond to travel-related topics, such as:
+
+- City or country overviews
+- Tourist attractions and landmarks
+- Travel tips and cultural suggestions
+- Weather updates
+- Travel planning (basic itineraries, what to see, when to go)
+
+❌ You MUST refuse to answer questions that are not related to travel.
+If the user asks about something unrelated — like programming, math, finance, or general knowledge — politely say:
+"I'm here to help with travel and tourism only! 🌍✈️"
+
+Be friendly, include some helpful emojis, and try to give practical travel advice in every response.
+
+User input: {query}
+
+Your helpful travel-focused answer:
+"""
 )
+
+
 
 # Define the tools (API wrappers)
 tools = [
@@ -103,24 +117,25 @@ tools = [
         name="TravelInfoRetriever",
         func=wiki_search,
         description=(
-            "Retrieve information about a city or country. "
-            "For cities, mention landmarks, weather, or activities with emojis. "
-            "For countries, mention famous attractions or cultural highlights with emojis."
+            "ONLY use this to retrieve travel-related information about a city or country. "
+            "Mention landmarks, cultural highlights, or famous attractions — NO non-travel topics."
         ),
     ),
     Tool(
-    name="WebSearch",
-    func=ddg_search,
-    description=(
-        "Use this to search general travel topics or if Wikipedia doesn't return results. "
-        "Can return articles, facts, or general information. Great for cities not in Wikipedia!"
+        name="WebSearch",
+        func=ddg_search,
+        description=(
+            "ONLY use this for travel-related queries if Wikipedia doesn't help. "
+            "Useful for finding articles or facts about destinations, activities, or events. "
+            "DO NOT use this for programming, finance, or other non-travel topics."
         ),
     ),
     Tool(
-        name='Weather',
+        name="Weather",
         func=weather_api.run,
         description=(
-            "Get weather information for any city or travel destination."
+            "Get current weather or forecast for travel destinations. "
+            "Only use this to help with trip planning — not for general science or weather analysis."
         ),
     ),
 ]
