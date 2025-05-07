@@ -68,7 +68,6 @@ def ddg_search(query):
  
     return retriever_tool(split_docs, query)
 
-listening_placeholder = st.empty() 
 # Define the listen_to_user function
 def listen_to_user(timeout=3, phrase_time_limit=5):
     """Convert speech to text with error handling"""
@@ -91,12 +90,7 @@ tour_guide_prompt = PromptTemplate(
     You are a SmartTourGuideAgent. Your task is to help users with their travel-related questions.
     If the user asks about a city or country, provide them with relevant details about it.
     If the user asks for a trip plan, create a basic itinerary for them.
-
-    Answer questions with relevant emojis to make the answers more engaging and fun. For example:
-    - For cities, mention landmarks, weather, or activities with emojis.
-    - For countries, mention famous attractions or cultural highlights with emojis.
-    - For trip plans, create a fun schedule with emojis representing the activities.
-
+    Answer questions with relevant emojis to make the answers more engaging and fun. 
     Query: {query}
     Answer:
     """
@@ -108,36 +102,29 @@ tour_guide_prompt = PromptTemplate(
 # Define the tools (API wrappers)
 tools = [
     Tool(
-    name="TravelInfoRetriever",
-    func=wiki_search,
-    description=(
-    "You are a SmartTourGuideAgent."
-    "If the user asks about a city or country, provide them with details about it."
-    "If the user asks for a trip plan, create a basic itinerary for them."
-    "- For cities, mention landmarks, weather, or activities with emojis."
-    "- For countries, mention famous attractions or cultural highlights with emojis."
-    "- For trip plans, create a fun schedule with emojis representing the activities."
-    )
+        name="TravelInfoRetriever",
+        func=wiki_search,
+        description=(
+            "Retrieve information about a city or country. "
+            "For cities, mention landmarks, weather, or activities with emojis. "
+            "For countries, mention famous attractions or cultural highlights with emojis."
+        ),
     ),
-
-Tool(
-    name="Search",
+    Tool(
+    name="WebSearch",
     func=ddg_search,
     description=(
-        "Use this tool to search the web for up-to-date information, news, events, travel rules, or details not covered by other tools. "
-        "Best for questions like: 'Is the Venice Carnival this year?' or 'Entry rules for Japan 2025.'"
-    )
-),
-
-  Tool(
+        "Use this to search general travel topics or if Wikipedia doesn't return results. "
+        "Can return articles, facts, or general information. Great for cities not in Wikipedia!"
+        ),
+    ),
+    Tool(
         name='Weather',
-        func= weather_api.run,
+        func=weather_api.run,
         description=(
-        "Use this tool to find **current or forecasted weather information** about a country, city, or travel destination. "
-        "Ideal for questions like: 'What's the weather in Rome?', 'Is it rainy in Tokyo?', or 'How cold is it in Iceland in December?'. "
-        "Only use this tool when the user is asking specifically about **weather** conditions. "
-        "Do not use it for general travel info or sightseeing.")
-  )
+            "Get weather information for any city or travel destination."
+        ),
+    ),
 ]
 
 # Initialize agent with memory
@@ -148,7 +135,7 @@ conversational_agent = initialize_agent(
     tools=tools,
     llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),  # Using a compatible model for chat completions
     verbose=True,
-    agent_kwargs={"prompt": tour_guide_prompt},
+   # agent_kwargs={"prompt": tour_guide_prompt},
     memory=memory,
     handle_parsing_errors=True,
 )
@@ -176,12 +163,12 @@ agent = ""
 on = st.toggle("🎙️ Use Voice Input")
 if on:
     if st.button("Start Recording"):
-        listening_placeholder = st.write("🎤 Listening...") 
+        st.write("🎤 Listening...") 
         query = listen_to_user()  # make sure this function returns a valid string
         if query:
-            listening_placeholder.success("✅ Voice input received!") 
+            st.success("✅ Voice input received!") 
             input_user = query
-            listening_placeholder.empty()          
+            st.empty()          
             result = conversational_agent.run(query)
             agent = result
 else:
