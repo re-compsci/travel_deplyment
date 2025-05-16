@@ -127,27 +127,22 @@ tools = [
     ),
 ]
 
-# Initialize agent with memory
-memory = ConversationBufferMemory(memory_key="chat_history")
+if "memory" not in st.session_state:
+    st.session_state.memory = ConversationBufferMemory(memory_key="chat_history")
 
+# Initialize agent with session-stored memory
 conversational_agent = initialize_agent(
     agent="conversational-react-description",
     tools=tools,
-    llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),  # Using a compatible model for chat completions
+    llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),
     verbose=True,
-   # agent_kwargs={"prompt": tour_guide_prompt},
-    memory=memory,
+    memory=st.session_state.memory,
     handle_parsing_errors=True,
 )
-
 
 st.title("My Smart TourGuide 💬")
 st.subheader("🚀 Adventures Around the World")
 
-
-# Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
