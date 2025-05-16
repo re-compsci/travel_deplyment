@@ -130,6 +130,16 @@ tools = [
 if "memory" not in st.session_state:
     st.session_state.memory = ConversationBufferMemory(memory_key="chat_history")
 
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+
+query = None
+input_user = ""
+agent = ""
+
 # Initialize agent with session-stored memory
 conversational_agent = initialize_agent(
     agent="conversational-react-description",
@@ -142,17 +152,6 @@ conversational_agent = initialize_agent(
 
 st.title("My Smart TourGuide 💬")
 st.subheader("🚀 Adventures Around the World")
-
-
-# Display chat messages from history on app rerun
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-
-query = None
-input_user = ""
-agent = ""
 
 # Toggle for Audio or Text
 on = st.button("🎙️ Use Voice Input")
