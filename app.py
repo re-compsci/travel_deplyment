@@ -127,6 +127,10 @@ tools = [
     ),
 ]
 
+# Ensure 'messages' key exists in session state
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
 if "memory" not in st.session_state:
     st.session_state.memory = ConversationBufferMemory(memory_key="chat_history")
 
@@ -135,10 +139,6 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-
-query = None
-input_user = ""
-agent = ""
 
 # Initialize agent with session-stored memory
 conversational_agent = initialize_agent(
@@ -152,6 +152,10 @@ conversational_agent = initialize_agent(
 
 st.title("My Smart TourGuide 💬")
 st.subheader("🚀 Adventures Around the World")
+
+query = None
+input_user = ""
+agent = ""
 
 # Toggle for Audio or Text
 on = st.button("🎙️ Use Voice Input")
