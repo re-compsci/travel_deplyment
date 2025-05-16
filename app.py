@@ -140,50 +140,48 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 
-# Initialize agent with session-stored memory
-conversational_agent = initialize_agent(
-    agent="conversational-react-description",
-    tools=tools,
-    llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),
-    verbose=True,
-    memory=st.session_state.memory,
-    handle_parsing_errors=True,
-)
-
 st.title("My Smart TourGuide 💬")
 st.subheader("🚀 Adventures Around the World")
 
+# Input method toggle
+input_mode = st.radio("Choose input method:", ["Text", "Voice"], horizontal=True)
 query = None
-input_user = ""
-agent = ""
 
-# Toggle for Audio or Text
-on = st.button("🎙️ Use Voice Input")
-if on:
-    if st.toggle("Start Recording"):
-      
-        query = listen_to_user()  # make sure this function returns a valid string
-        st.write("🎤 Listening...") 
-        if query:
-            st.success("✅ Voice input received!") 
-            input_user = query
-            st.empty()          
-            result = conversational_agent.run(query)
-            agent = result
+# Handle voice input
+if input_mode == "Voice":
+    if st.button("🎙️ Start Voice Recording"):
+        spoken = listen_to_user()
+        if spoken:
+            query = spoken
+            st.success("✅ Voice input received!")
+        else:
+            st.warning("❌ Could not capture speech. Try again.")
+# Handle text input
 else:
     query = st.chat_input("Ask Anything ✍️ ")
-    if query:
-        input_user = query
-        result = conversational_agent.run(query)
-        agent = result
 
-# Show the interaction in chat format
+# Run agent and display chat
 if query:
-    st.chat_message("user").markdown(input_user)
-    st.chat_message("assistant").markdown(agent)
-    # Optionally: Save to session state for chat history
-    st.session_state.messages.append({"role": "user", "content": input_user})
-    st.session_state.messages.append({"role": "assistant", "content": agent})
+
+    # Initialize agent with session-stored memory
+    conversational_agent = initialize_agent(
+        agent="conversational-react-description",
+        tools=tools,
+        llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),
+        verbose=True,
+        memory=st.session_state.memory,
+        handle_parsing_errors=True,
+    )
+    
+    with st.chat_message("user"):
+        st.markdown(query)
+    response = conversational_agent.run(query)
+    with st.chat_message("assistant"):
+        st.markdown(response)
+    # Save to session state
+    st.session_state.messages.append({"role": "user", "content": query})
+    st.session_state.messages.append({"role": "assistant", "content": response})
+
 
 with st.sidebar:
     st.title("Travel Assistant Agent 🌍")
