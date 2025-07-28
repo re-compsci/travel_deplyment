@@ -3,8 +3,6 @@ speechrecognition
 langchain
 pip
 langchain-community
-google-search-results
-pkg_resources
 pyowm
 langsmith
 openai
