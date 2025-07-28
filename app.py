@@ -22,14 +22,14 @@ _ = load_dotenv()
 
 OPENAI_API_KEY  = os.getenv('OPENAI_API_KEY')
 LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
-OPENWEATHERMAP_API_KEY = os.getenv('OPENWEATHERMAP_API_KEY')
+
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_ENDPOINT"]="https://api.smith.langchain.com"
 os.environ["LANGCHAIN_PROJECT"]="Travel Assistant"
 
 # Setup recognizer and APIs
 # assign APIs libraries into variable
-weather_api = OpenWeatherMapAPIWrapper()  #https://home.openweathermap.org/api_keys
+weather_api = OpenWeatherMapAPIWrapper(openweathermap_api_key=os.getenv("OPENWEATHERMAP_API_KEY"))  #https://home.openweathermap.org/api_keys
 duck_api =DuckDuckGoSearchAPIWrapper()
 wiki_api = WikipediaAPIWrapper()
 trav_api = TavilySearchResults()
