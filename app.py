@@ -1,4 +1,3 @@
-# import libraries
 import os 
 import time
 import streamlit as st
@@ -13,28 +12,22 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_core.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.tools.tavily_search import TavilySearchResults
 from langchain_community.utilities import OpenWeatherMapAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper,SerpAPIWrapper
-
 
 from dotenv import load_dotenv
 _ = load_dotenv()
 
 OPENAI_API_KEY  = os.getenv('OPENAI_API_KEY')
 LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
-
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_ENDPOINT"]="https://api.smith.langchain.com"
 os.environ["LANGCHAIN_PROJECT"]="Travel Assistant"
 
 # Setup recognizer and APIs
-# assign APIs libraries into variable
-weather_api = OpenWeatherMapAPIWrapper(openweathermap_api_key=os.getenv("OPENWEATHERMAP_API_KEY"))  #https://home.openweathermap.org/api_keys
-duck_api =DuckDuckGoSearchAPIWrapper()
-wiki_api = WikipediaAPIWrapper()
-trav_api = TavilySearchResults()
-serp_api = SerpAPIWrapper()
 recognizer = sr.Recognizer()
+weather_api = OpenWeatherMapAPIWrapper(st.secrets["OPENWEATHERMAP_API_KEY"])  # API key required
+wiki_api = WikipediaAPIWrapper()
+serp_api = SerpAPIWrapper()
 embed = OpenAIEmbeddings(model='text-embedding-ada-002') 
 splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
 
@@ -109,58 +102,33 @@ tour_guide_prompt = PromptTemplate(
     """
 )
 
-st.title("My Smart TourGuide 💬")
-st.subheader("🚀 Adventures Around the World")
-
-
-
 # Define the tools (API wrappers)
 tools = [
     Tool(
         name="TravelInfoRetriever",
         func=wiki_search,
         description=(
-            "You are a SmartTourGuideAgent. Use this tool when the user wants general information or suggestions about a place. "
-            "Provide cultural facts, famous landmarks, popular activities, or create basic travel itineraries. "
-            "- For cities: Mention must-see sights, activities, local foods, or typical weather with emojis. "
-            "- For countries: Mention popular destinations, customs, or iconic elements with emojis. "
-            "- For trip plans: Generate a daily schedule or highlights with emoji-enhanced bullet points. "
-            "Avoid using this for real-time weather or current events."
-        )
+            "Retrieve information about a city or country or landmarks or current events. "
+            "For cities, mention landmarks, weather, or activities with emojis. "
+            "For countries, mention famous attractions or cultural highlights with emojis."
+        ),
     ),
     Tool(
-        name="Weather",
+    name="WebSearch",
+    func=serp_api.run,
+    description=(
+        "Use this to search general travel topics or if Wikipedia doesn't return results. "
+        "Can return articles, facts, or general information. Great for cities not in Wikipedia!"
+        ),
+    ),
+    Tool(
+        name='Weather',
         func=weather_api.run,
         description=(
-            "Use this to fetch current or forecasted weather conditions. "
-            "Perfect for questions like: 'Is it snowing in Tokyo?', 'What's the temperature in Dubai in July?', or "
-            "'Will it rain in Paris next weekend?'. Only use if the user specifically asks about weather."
-        )
+            "Get weather information for any city or travel destination."
+        ),
     ),
-    Tool(
-        name="SerpSearch",
-        func=serp_api.run,
-        description=(
-            "Use this tool to retrieve Google-style search results. Ideal for rich, broad, or deeper queries like: "
-            "'Compare Tokyo and Seoul for nightlife', 'Recent travel advisories for Thailand', or "
-            "'Top-rated ski resorts in Switzerland'. Suitable when DuckDuckGo returns limited info."
-            "Use when you need current news, regulations, or live information not covered by Wikipedia or guidebooks."
-        )
-    ),
-    Tool(
-        name="TavilySearch",
-        func=trav_api.run,
-        description=(
-            "Use this powerful real-time search tool to find fast and reliable web results for travel, news, or events. "
-            "Great for: 'New Year's events in New York 2025', 'COVID travel updates for Canada', or "
-            "'Unique cultural festivals in Africa'. Useful when you need well-organized search results quickly."
-            "Search the web for up-to-date or obscure travel-related information. "
-            "Great for things like: 'Travel rules for 2025', 'Best hiking events in Switzerland this summer', or "
-            "'Is the Venice Carnival happening this year?'. "
-        )
-    )
 ]
-
 
 # Initialize agent with memory
 if "memory" not in st.session_state:
@@ -187,6 +155,8 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 
+st.title("My Smart TourGuide 💬")
+st.subheader("🚀 Adventures Around the World")
 
 
 query = None
