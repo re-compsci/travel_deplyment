@@ -1,5 +1,7 @@
 streamlit
 pyowm==3.3.0
+setuptools
+wheel
 speechrecognition
 langchain
 langsmith
