@@ -27,7 +27,7 @@ os.environ["LANGCHAIN_PROJECT"]="Travel Assistant"
 
 # Setup recognizer and APIs
 # assign APIs libraries into variable
-weather_api = OpenWeatherMapAPIWrapper()  #https://home.openweathermap.org/api_keys
+weather_api = OpenWeatherMapAPIWrapper(openweathermap_api_key=st.secrets.openweathermap.api_key)
 duck_api =DuckDuckGoSearchAPIWrapper()
 wiki_api = WikipediaAPIWrapper()
 trav_api = TavilySearchResults()
