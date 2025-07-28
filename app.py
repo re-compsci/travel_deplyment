@@ -16,6 +16,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.tools.tavily_search import TavilySearchResults
 from langchain_community.utilities import OpenWeatherMapAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper,SerpAPIWrapper
 
+
 from dotenv import load_dotenv
 _ = load_dotenv()
 
@@ -27,7 +28,7 @@ os.environ["LANGCHAIN_PROJECT"]="Travel Assistant"
 
 # Setup recognizer and APIs
 # assign APIs libraries into variable
-weather_api = OpenWeatherMapAPIWrapper(openweathermap_api_key=st.secrets.openweathermap.api_key)
+weather_api = OpenWeatherMapAPIWrapper(OPENWEATHERMAP_API_KEY)  #https://home.openweathermap.org/api_keys
 duck_api =DuckDuckGoSearchAPIWrapper()
 wiki_api = WikipediaAPIWrapper()
 trav_api = TavilySearchResults()
