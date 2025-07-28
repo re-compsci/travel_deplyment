@@ -11,5 +11,6 @@ langchain-community
 langchain-core
 weaviate-client
 wikipedia
+pyowm==3.3.0  
 duckduckgo-search
 tavily-python
