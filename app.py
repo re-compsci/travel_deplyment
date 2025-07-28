@@ -16,7 +16,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.tools.tavily_search import TavilySearchResults
 from langchain_community.utilities import OpenWeatherMapAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper,SerpAPIWrapper
 
-
 from dotenv import load_dotenv
 _ = load_dotenv()
 
