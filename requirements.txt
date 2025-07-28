@@ -2,6 +2,7 @@ streamlit
 pyowm==3.3.0
 setuptools
 wheel
+langchain-community
 speechrecognition
 langchain
 langsmith
