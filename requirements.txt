@@ -3,6 +3,7 @@ pyowm==3.3.0
 setuptools
 wheel
 langchain-community
+google-search-results
 speechrecognition
 langchain
 langsmith
