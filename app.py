@@ -25,10 +25,10 @@ os.environ["LANGCHAIN_PROJECT"]="Travel Assistant"
 
 # Setup recognizer and APIs
 recognizer = sr.Recognizer()
-weather_api = OpenWeatherMapAPIWrapper(st.secrets["OPENWEATHERMAP_API_KEY"])  # API key required
+weather_api = OpenWeatherMapAPIWrapper(openweathermap_api_key="OPENWEATHERMAP_API_KEY")  # API key required
 wiki_api = WikipediaAPIWrapper()
-serp_api = SerpAPIWrapper()
-embed = OpenAIEmbeddings(model='text-embedding-ada-002') 
+serp_api = SerpAPIWrapper(serpapi_api_key="SERPAPI_API_KEY")
+embed = OpenAIEmbeddings(api_key= 'OPENAI_API_KEY',model='text-embedding-ada-002') 
 splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
 
 # Wikipidia retriever system
@@ -142,7 +142,7 @@ if "messages" not in st.session_state:
 conversational_agent = initialize_agent(
     agent="conversational-react-description",
     tools=tools,
-    llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),  # Using a compatible model for chat completions
+    llm=ChatOpenAI(api_key= 'OPENAI_API_KEY',temperature=0, model_name="gpt-3.5-turbo"),  # Using a compatible model for chat completions
     verbose=True,
     agent_kwargs={"prompt": tour_guide_prompt},
     memory=st.session_state.memory,
