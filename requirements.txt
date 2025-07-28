@@ -1,9 +1,9 @@
 streamlit
+pyowm
 speechrecognition
 langchain
 pip
 langchain-community
-pyowm
 langsmith
 openai
 pydub
