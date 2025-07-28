@@ -1,17 +1,21 @@
+# import libraries
 import os 
+import time
 import streamlit as st
-from  langsmith import utils
 import speech_recognition as sr
 from langchain.agents import Tool
 from langchain.schema import Document
 from langchain_openai import ChatOpenAI
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
+#from langchain.vectorstores import FAISS
 from langchain.agents import initialize_agent
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.utilities import OpenWeatherMapAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper
+from langchain.tools.tavily_search import TavilySearchResults
+from langchain_community.utilities import OpenWeatherMapAPIWrapper, WikipediaAPIWrapper, DuckDuckGoSearchAPIWrapper,SerpAPIWrapper
+
 
 from dotenv import load_dotenv
 _ = load_dotenv()
@@ -23,10 +27,13 @@ os.environ["LANGCHAIN_ENDPOINT"]="https://api.smith.langchain.com"
 os.environ["LANGCHAIN_PROJECT"]="Travel Assistant"
 
 # Setup recognizer and APIs
-recognizer = sr.Recognizer()
-weather_api = OpenWeatherMapAPIWrapper(openweathermap_api_key=os.getenv("OPENWEATHERMAP_API_KEY"))  # API key required
+# assign APIs libraries into variable
+weather_api = OpenWeatherMapAPIWrapper()  #https://home.openweathermap.org/api_keys
+duck_api =DuckDuckGoSearchAPIWrapper()
 wiki_api = WikipediaAPIWrapper()
-duck_api = DuckDuckGoSearchAPIWrapper()
+trav_api = TavilySearchResults()
+serp_api = SerpAPIWrapper()
+recognizer = sr.Recognizer()
 embed = OpenAIEmbeddings(model='text-embedding-ada-002') 
 splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
 
@@ -59,14 +66,18 @@ def docs(article):
 
 
 # DuckDuckGo search system 
-def ddg_search(query):
-    data = duck_api.results(query,10)
-    documents = []
-    for raw in data:
-     documents.append(docs(raw))
-    split_docs = splitter.split_documents(documents)
- 
-    return retriever_tool(split_docs, query)
+def serp_search(query):
+    try:
+        time.sleep(2) 
+        data = serp_api.results()
+        documents = []
+        for raw in data:
+            documents.append(docs(raw))
+        split_docs = splitter.split_documents(documents)
+        return retriever_tool(split_docs, query)
+    except Exception as e:
+        return f"⚠️ Web search failed (rate limited or error): {str(e)}"
+
 
 # Define the listen_to_user function
 def listen_to_user(timeout=3, phrase_time_limit=5):
@@ -89,13 +100,16 @@ tour_guide_prompt = PromptTemplate(
     template="""
     You are a SmartTourGuideAgent. Your task is to help users with their travel-related questions.
     If the user asks about a city or country, provide them with relevant details about it.
-    If the user asks for a trip plan, create a basic itinerary for them.
+    If the user asks or ordered or request for a trip plan, create a detailed itinerary day-by-day time-by-time for them.
+    be smart, add your touches and be more friendly.
     Answer questions with relevant emojis to make the answers more engaging and fun. 
     Query: {query}
     Answer:
     """
 )
 
+st.title("My Smart TourGuide 💬")
+st.subheader("🚀 Adventures Around the World")
 
 
 
@@ -105,83 +119,104 @@ tools = [
         name="TravelInfoRetriever",
         func=wiki_search,
         description=(
-            "Retrieve information about a city or country. "
-            "For cities, mention landmarks, weather, or activities with emojis. "
-            "For countries, mention famous attractions or cultural highlights with emojis."
-        ),
+            "You are a SmartTourGuideAgent. Use this tool when the user wants general information or suggestions about a place. "
+            "Provide cultural facts, famous landmarks, popular activities, or create basic travel itineraries. "
+            "- For cities: Mention must-see sights, activities, local foods, or typical weather with emojis. "
+            "- For countries: Mention popular destinations, customs, or iconic elements with emojis. "
+            "- For trip plans: Generate a daily schedule or highlights with emoji-enhanced bullet points. "
+            "Avoid using this for real-time weather or current events."
+        )
     ),
     Tool(
-    name="WebSearch",
-    func=ddg_search,
-    description=(
-        "Use this to search general travel topics or if Wikipedia doesn't return results. "
-        "Can return articles, facts, or general information. Great for cities not in Wikipedia!"
-        ),
-    ),
-    Tool(
-        name='Weather',
+        name="Weather",
         func=weather_api.run,
         description=(
-            "Get weather information for any city or travel destination."
-        ),
+            "Use this to fetch current or forecasted weather conditions. "
+            "Perfect for questions like: 'Is it snowing in Tokyo?', 'What's the temperature in Dubai in July?', or "
+            "'Will it rain in Paris next weekend?'. Only use if the user specifically asks about weather."
+        )
     ),
+    Tool(
+        name="SerpSearch",
+        func=serp_api.run,
+        description=(
+            "Use this tool to retrieve Google-style search results. Ideal for rich, broad, or deeper queries like: "
+            "'Compare Tokyo and Seoul for nightlife', 'Recent travel advisories for Thailand', or "
+            "'Top-rated ski resorts in Switzerland'. Suitable when DuckDuckGo returns limited info."
+            "Use when you need current news, regulations, or live information not covered by Wikipedia or guidebooks."
+        )
+    ),
+    Tool(
+        name="TavilySearch",
+        func=trav_api.run,
+        description=(
+            "Use this powerful real-time search tool to find fast and reliable web results for travel, news, or events. "
+            "Great for: 'New Year's events in New York 2025', 'COVID travel updates for Canada', or "
+            "'Unique cultural festivals in Africa'. Useful when you need well-organized search results quickly."
+            "Search the web for up-to-date or obscure travel-related information. "
+            "Great for things like: 'Travel rules for 2025', 'Best hiking events in Switzerland this summer', or "
+            "'Is the Venice Carnival happening this year?'. "
+        )
+    )
 ]
 
-# Ensure 'messages' key exists in session state
+
+# Initialize agent with memory
+if "memory" not in st.session_state:
+    st.session_state.memory =  ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
+# Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-if "memory" not in st.session_state:
-    st.session_state.memory = ConversationBufferMemory(memory_key="chat_history")
 
-# Display chat messages from history on app rerun
+conversational_agent = initialize_agent(
+    agent="conversational-react-description",
+    tools=tools,
+    llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),  # Using a compatible model for chat completions
+    verbose=True,
+    agent_kwargs={"prompt": tour_guide_prompt},
+    memory=st.session_state.memory,
+    handle_parsing_errors=True,
+)
+
+# Display existing chat messages from history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
 
-st.title("My Smart TourGuide 💬")
-st.subheader("🚀 Adventures Around the World")
 
-# Input method toggle
-input_mode = st.radio("Choose input method:", ["Text", "Voice"], horizontal=True)
+
 query = None
+input_user = ""
+agent = ""
 
-# Handle voice input
-if input_mode == "Voice":
-    if st.button("🎙️ Start Voice Recording"):
-        spoken = listen_to_user()
-        if spoken:
-            query = spoken
-            st.success("✅ Voice input received!")
-        else:
-            st.warning("❌ Could not capture speech. Try again.")
-# Handle text input
+# Toggle for Audio or Text
+on = st.toggle("🎙️ Use Voice Input")
+if on:
+    if st.button("Start Recording"):
+        st.write("🎤 Listening...") 
+        query = listen_to_user()  # make sure this function returns a valid string
+        st.success("✅ Voice input received!")
+        time.sleep(2)
+        st.empty()          
 else:
     query = st.chat_input("Ask Anything ✍️ ")
 
-# Run agent and display chat
 if query:
+    input_user = query   
+        # Get agent response with spinner to show processing
+    with st.spinner("Thinking..."):
+        agent = conversational_agent.run(query)
 
-    # Initialize agent with session-stored memory
-    conversational_agent = initialize_agent(
-        agent="conversational-react-description",
-        tools=tools,
-        llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"),
-        verbose=True,
-        memory=st.session_state.memory,
-        handle_parsing_errors=True,
-    )
-    
-    with st.chat_message("user"):
-        st.markdown(query)
-    response = conversational_agent.run(query)
-    with st.chat_message("assistant"):
-        st.markdown(response)
-    # Save to session state
-    st.session_state.messages.append({"role": "user", "content": query})
-    st.session_state.messages.append({"role": "assistant", "content": response})
-
+# Show the interaction in chat format
+if query:
+    st.chat_message("user").markdown(input_user)
+    st.chat_message("assistant").markdown(agent)
+    # Optionally: Save to session state for chat history
+    st.session_state.messages.append({"role": "user", "content": input_user})
+    st.session_state.messages.append({"role": "assistant", "content": agent})
 
 with st.sidebar:
     st.title("Travel Assistant Agent 🌍")
@@ -207,3 +242,9 @@ with st.sidebar:
         
     )
     st.markdown("**Travel Tip**: When you visit a new place, don’t forget to try the local food! 🌮🍣")
+        # Add a button to clear conversation history
+    if st.button("Clear Conversation"):
+        st.session_state.messages = []
+        st.session_state.memory.clear()
+        st.experimental_rerun()
+
