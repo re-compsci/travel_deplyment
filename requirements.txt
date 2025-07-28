@@ -8,7 +8,11 @@ faiss-cpu
 tiktoken
 langchain-openai
 langchain-community
+langchain-core
 pyowm
 weaviate-client
 wikipedia
 duckduckgo-search
+tavily-python
+pyaudio
+pipwin

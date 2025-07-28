@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#FCEEDB"              # Warm Mustard Yellow (used in button background)
+backgroundColor = "#FFF8F0"             # Very light cream (softer than pure white)
+secondaryBackgroundColor = "#FCEEDB"    # Pale orange-beige (for sidebar or cards)
+textColor = "#31333F"                   # Neutral dark gray for readability
+font = "sans serif"
