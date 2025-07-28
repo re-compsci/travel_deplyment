@@ -1,6 +1,7 @@
 streamlit
 speechrecognition
 langchain==0.1.14
+pip
 langchain-community==0.0.29
 pyowm==3.3.0
 langsmith
