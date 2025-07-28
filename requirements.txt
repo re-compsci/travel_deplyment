@@ -4,7 +4,7 @@ langchain
 pip
 langchain-community
 google-search-results
-pyowm==3.3.0
+pyowm
 langsmith
 openai
 pydub
