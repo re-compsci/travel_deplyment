@@ -220,5 +220,5 @@ with st.sidebar:
     if st.button("Clear Conversation"):
         st.session_state.messages = []
         st.session_state.memory.clear()
-        st.experimental_rerun()
+        st.rerun()
 
