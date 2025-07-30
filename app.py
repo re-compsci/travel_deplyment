@@ -25,9 +25,40 @@ os.environ["LANGCHAIN_PROJECT"]="Travel Assistant"
 st.title("My Smart TourGuide 💬")
 st.subheader("🚀 Adventures Around the World")
 
-openai_api_key = st.text_input("OpenAI API Key", type="password")
+
+with st.sidebar:
+    openai_api_key = st.text_input("OpenAI API Key", type="password")
+    st.title("Travel Assistant Agent 🌍")
+    st.subheader("Your Smart Travel Companion")
+    st.markdown(
+        """
+        Meet your **AI-powered Travel Assistant Agent** – your all-in-one solution for discovering new cities and planning smarter trips.
+
+         **What it does**✨
+        - Gives you a short overview of any city you ask about
+        - Recommends top tourist attractions
+        - Provides live weather updates
+        - Checks for nearby airports and informs you if travel access is limited
+        - Supports both text and voice interaction
+
+        🔧 **Powered by**:
+        - [Wikipedia API](https://www.mediawiki.org/wiki/API:Main_page) for city facts and history
+        - [DuckDuckGo API](https://duckduckgo.com/api) for additional insights
+        - [OpenWeatherMap API](https://openweathermap.org/api) for real-time weather
+
+        Perfect for travelers, trip planners, and anyone curious about the world 🌐✈️
+        """
+        
+    )
+    st.markdown("**Travel Tip**: When you visit a new place, don’t forget to try the local food! 🌮🍣")
+        # Add a button to clear conversation history
+    if st.button("Clear Conversation"):
+        st.session_state.messages = []
+        st.session_state.memory.clear()
+        st.rerun()
+
 if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
+    st.info("Please add your OpenAI API key in the sidebar to continue.", icon="🗝️")
     
 else:
     # Setup recognizer and APIs
@@ -191,34 +222,3 @@ else:
         # Optionally: Save to session state for chat history
         st.session_state.messages.append({"role": "user", "content": input_user})
         st.session_state.messages.append({"role": "assistant", "content": agent})
-
-with st.sidebar:
-    st.title("Travel Assistant Agent 🌍")
-    st.subheader("Your Smart Travel Companion")
-    st.markdown(
-        """
-        Meet your **AI-powered Travel Assistant Agent** – your all-in-one solution for discovering new cities and planning smarter trips.
-
-         **What it does**✨
-        - Gives you a short overview of any city you ask about
-        - Recommends top tourist attractions
-        - Provides live weather updates
-        - Checks for nearby airports and informs you if travel access is limited
-        - Supports both text and voice interaction
-
-        🔧 **Powered by**:
-        - [Wikipedia API](https://www.mediawiki.org/wiki/API:Main_page) for city facts and history
-        - [DuckDuckGo API](https://duckduckgo.com/api) for additional insights
-        - [OpenWeatherMap API](https://openweathermap.org/api) for real-time weather
-
-        Perfect for travelers, trip planners, and anyone curious about the world 🌐✈️
-        """
-        
-    )
-    st.markdown("**Travel Tip**: When you visit a new place, don’t forget to try the local food! 🌮🍣")
-        # Add a button to clear conversation history
-    if st.button("Clear Conversation"):
-        st.session_state.messages = []
-        st.session_state.memory.clear()
-        st.rerun()
-
